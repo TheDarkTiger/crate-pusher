@@ -52,6 +52,7 @@ const uint8_t playerYpos[] = {0x0, 0x3, 0x7, 0xB};
 typedef struct {
 	uint8_t levelNumber;
 	uint8_t level[32];
+	uint8_t levelThreshold;
 	uint8_t moves;
 	s_player player;
 } s_gameState;
@@ -60,6 +61,8 @@ void draw_playfield( void );
 
 void level_load( uint8_t number );
 void level_display( void );
+void level_update( void );
+uint8_t level_check_status( void );
 
 
 s_gameState g_game;
@@ -104,6 +107,7 @@ void main( void )
 	// Init game state
 	g_game.levelNumber = 0;
 	g_game.level[0] = 0;
+	g_game.levelThreshold = 0;
 	g_game.moves = 0;
 	g_game.player.x = 80+4;
 	g_game.player.y = 0;
@@ -276,6 +280,8 @@ void main( void )
 					set_sprite_tile( 6, 10+tmp );
 					set_sprite_tile( 7, 11+tmp );
 					
+					level_update();
+					
 					level_display();
 				}
 			}
@@ -314,7 +320,10 @@ void main( void )
 	}
 }
 
-// Loads a level
+
+/*
+ * Loads a level
+ */
 void level_load( uint8_t number )
 {
 	g_game.levelNumber = number;
@@ -347,10 +356,15 @@ void level_load( uint8_t number )
 	g_game.level[20] = 3;
 	g_game.level[21] = 3;
 	
+	g_game.levelThreshold = 3;
+	
 	level_display();
 }
 
-// Background if you will
+
+/*
+ * Background if you will
+ */
 void draw_playfield( void )
 {
 	// Clear screen
@@ -368,7 +382,10 @@ void draw_playfield( void )
 	set_bkg_tiles( 0,14, 20,1, tmp );
 }
 
-// Draw the correct crates where it should
+
+/*
+ * Draw the correct crates where it should
+ */
 void level_display( void )
 {
 	uint8_t x = 0;
@@ -411,3 +428,79 @@ void level_display( void )
 	}
 }
 
+
+/*
+ * Cleans up any sorted out crates groups
+ */
+void level_update( void )
+{
+	uint8_t crateType = 0;
+	uint8_t crateNumber = 0;
+	
+	// Scans each rake
+	for( int8_t rake=0; rake<32; rake+=4 )
+	{
+		// Start by the exterior and count how much crate of the same type there is
+		crateType = 0;
+		crateNumber = 0;
+		uint8_t tmp = 0;
+		
+		for( uint8_t i=0; i<4; i++ )
+		{
+			tmp = rake + 3 - i;
+			if( g_game.level[tmp] != 0 )
+			{
+				if( crateNumber < g_game.levelThreshold )
+				{
+					if( crateType == 0 )
+					{
+						crateType = g_game.level[tmp];
+						crateNumber = 1;
+					}else{
+						if( g_game.level[tmp] == crateType )
+						{
+							crateNumber++;
+						}else{
+							//WARNING Wonky algo. Works because it's 3 or 4 crates...
+							// Should stop as soon as not good anymore
+							crateType = 0;
+							crateNumber = 0;
+						}
+					}
+				}
+			}
+		}
+		
+		// Check if the rake can be cleaned or not
+		if( crateNumber >= g_game.levelThreshold )
+		{
+			uint8_t tmp = 0;
+			uint8_t removed = 0;
+			for( uint8_t i=0; i<4; i++ )
+			{
+				tmp = rake + 3 - i;
+				if( g_game.level[tmp] != 0 )
+				{
+					if( removed < g_game.levelThreshold )
+					{
+						removed ++;
+						g_game.level[tmp] = 0;
+					}
+				}
+			}
+		}
+	}
+}
+
+/*
+ * Checks if the level is completed or not
+ */
+uint8_t level_check_status( void )
+{
+	bool rakeState[8] = {false, false, false, false, false, false, false, false};
+	
+	for( uint8_t rake=0; rake<8; rake++ )
+	{
+		rakeState[rake] = false;
+	}
+}
