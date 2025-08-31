@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <gb/gb.h>
 
+#include "SFX.h"
+
 // ;)
 #include "MLP.h"
 
@@ -101,6 +103,17 @@ void main( void )
 	SHOW_BKG;
 	HIDE_WIN;
 	
+	// Music
+	NR52_REG = 0x80;
+	NR51_REG = 0xFF;
+	NR50_REG = 0x77;
+	/*
+	__critical {
+		hUGE_init(&song_theme);
+		add_VBL(hUGE_dosound);
+	}
+	*/
+	
 	// Release the hound
 	DISPLAY_ON;
 	enable_interrupts();
@@ -199,30 +212,30 @@ void main( void )
 						g_game.player.holding = g_game.level[row+3];
 						g_game.level[row+3] = 0;
 						change = true;
-						//play_SFX( sfx_grab );
+						play_SFX( sfx_grab );
 					}else{
 						if( g_game.level[row+2] != 0 )
 						{
 							g_game.player.holding = g_game.level[row+2];
 							g_game.level[row+2] = 0;
 							change = true;
-							//play_SFX( sfx_grab );
+							play_SFX( sfx_grab );
 						}else{
 							if( g_game.level[row+1] != 0 )
 							{
 								g_game.player.holding = g_game.level[row+1];
 								g_game.level[row+1] = 0;
 								change = true;
-								//play_SFX( sfx_grab );
+								play_SFX( sfx_grab );
 							}else{
 								if( g_game.level[row] != 0 )
 								{
 									g_game.player.holding = g_game.level[row];
 									g_game.level[row] = 0;
 									change = true;
-									//play_SFX( sfx_grab );
+									play_SFX( sfx_grab );
 								}else{
-									//play_SFX( sfx_nope );
+									play_SFX( sfx_nope );
 								}
 							}
 						}
@@ -237,43 +250,36 @@ void main( void )
 						g_game.level[row] = g_game.player.holding;
 						g_game.player.holding = 0;
 						change = true;
-						//play_SFX( sfx_put );
+						play_SFX( sfx_put );
 					}else{
 						if( g_game.level[row+1] == 0 )
 						{
 							g_game.level[row+1] = g_game.player.holding;
 							g_game.player.holding = 0;
 							change = true;
-							//play_SFX( sfx_put );
+							play_SFX( sfx_put );
 						}else{
 							if( g_game.level[row+2] == 0 )
 							{
 								g_game.level[row+2] = g_game.player.holding;
 								g_game.player.holding = 0;
 								change = true;
-								//play_SFX( sfx_put );
+								play_SFX( sfx_put );
 							}else{
 								if( g_game.level[row+3] == 0 )
 								{
 									g_game.level[row+3] = g_game.player.holding;
 									g_game.player.holding = 0;
 									change = true;
-									//play_SFX( sfx_put );
+									play_SFX( sfx_put );
 								}else{
-									//play_SFX( sfx_nope );
+									play_SFX( sfx_nope );
 								}
 							}
 						}
 					}
 				}
-				/*
-				g_game.player.holding++;
-				//play_SFX( sfx_sweep_up );
-				if( g_game.player.holding > 5 )
-				{
-					g_game.player.holding = 0;
-				}
-				*/
+				
 				if( change )
 				{
 					uint8_t tmp = g_game.player.holding*4;
@@ -286,6 +292,11 @@ void main( void )
 					level_display();
 					
 					level_check_status();
+					
+					if( g_game.levelFinished )
+					{
+						play_SFX( sfx_win );
+					}
 				}
 			}
 			
@@ -300,8 +311,6 @@ void main( void )
 						//play_music( msk_playing );
 					}
 				}
-				
-				//play_SFX( sfx_sweep_down );
 			}
 			//*/
 			
