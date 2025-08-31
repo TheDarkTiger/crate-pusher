@@ -1,17 +1,7 @@
-#SDCC (GBZ80) - GBDK - DMG01 Makefile
-#  root/
-#  ├───src/
-#  │   ├──include/
-#  │   │  └───(header %.h)
-#  │   ├──lib/
-#  │   │  └───(libraries %.lib)
-#  │   └──(C & ASM sources %.c %.s)
-#  ├───build/
-#  │   └───(output files)
-#  └───makefile
+# Hi and thx KAB!
 
 #Custom Values
-ROM_NAME=GAME
+ROM_NAME=CRATEPUSHER
 
 GBDK=D:/DEV_GB/GBDK
 FLASHER=D:/DEV_GB/tools/GBxCartRW/flash $(CURDIR)/build/$(ROM_NAME).gb

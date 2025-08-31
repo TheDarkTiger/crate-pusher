@@ -1,0 +1,13 @@
+As to comply with the "OSS bonus", this branch of the project (meaning everything until the end of the compo) is licensed as follow:
+
+Code:
+"To be eligible for the OSS bonus, the code must be licensed under an "Open Source" license (any of the "Free" license listed here is accepted)."
+I so choose to license the code (including SFX) under "The Unlicense"
+If your country don't accept or recognize this licence, consider it under "Public Domain"
+
+Assets:
+"Assets can be licensed under any of the CC licenses"
+I so choose to license assets (graphics) under "CC BY-NC-SA V4".
+
+You can find a copy of the licenses in the folder "doc" of this repository.
+Happy hacking!
