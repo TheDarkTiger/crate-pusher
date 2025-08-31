@@ -55,10 +55,13 @@ typedef struct {
 	s_player player;
 } s_gameState;
 
-void update_level( s_gameState gamestate );
+void draw_playfield( void );
+
+void level_load( uint8_t number );
+void level_display( void );
 
 
-s_gameState game;
+s_gameState g_game;
 
 void main( void )
 {
@@ -98,15 +101,16 @@ void main( void )
 	enable_interrupts();
 	
 	// Init game state
-	game.levelNumber = 0;
-	game.level[0] = 0;
-	game.moves = 0;
-	game.player.x = 80+4;
-	game.player.y = 0;
-	game.player.side = 0;
-	game.player.holding = 0;
+	g_game.levelNumber = 0;
+	g_game.level[0] = 0;
+	g_game.moves = 0;
+	g_game.player.x = 80+4;
+	g_game.player.y = 0;
+	g_game.player.side = 0;
+	g_game.player.holding = 0;
 	
-	update_level( game );
+	draw_playfield();
+	level_load( 1 );
 	
 	// Main loop
 	unsigned char mode = 0; //0: album, 1: page, 2: roll, 3: picture, 4: viewing
@@ -129,8 +133,8 @@ void main( void )
 			
 			if( joystickPressed & J_LEFT )
 			{
-				game.player.x = 80+4;
-				game.player.side = 0;
+				g_game.player.x = 80+4;
+				g_game.player.side = 0;
 				set_sprite_tile( 0, 4 );
 				set_sprite_tile( 1, 5 );
 				set_sprite_tile( 2, 6 );
@@ -142,8 +146,8 @@ void main( void )
 			}
 			if( joystickPressed & J_RIGHT )
 			{
-				game.player.x = 72+4;
-				game.player.side = 1;
+				g_game.player.x = 72+4;
+				g_game.player.side = 1;
 				set_sprite_tile( 0, 5 );
 				set_sprite_tile( 1, 4 );
 				set_sprite_tile( 2, 7 );
@@ -155,20 +159,20 @@ void main( void )
 			}
 			if( joystickPressed & J_UP )
 			{
-				if( game.player.y > 0 )
+				if( g_game.player.y > 0 )
 				{
-					game.player.y -= 1;
+					g_game.player.y -= 1;
 				}else{
-					game.player.y = 0;
+					g_game.player.y = 0;
 				}
 			}
 			if( joystickPressed & J_DOWN )
 			{
-				if( game.player.y < 3 )
+				if( g_game.player.y < 3 )
 				{
-					game.player.y += 1;
+					g_game.player.y += 1;
 				}else{
-					game.player.y = 3;
+					g_game.player.y = 3;
 				}
 			}
 			
@@ -186,8 +190,8 @@ void main( void )
 		}
 		
 		// Update player
-		uint8_t X = game.player.x;
-		uint8_t Y = 18+(32*game.player.y);
+		uint8_t X = g_game.player.x;
+		uint8_t Y = 18+(32*g_game.player.y);
 		move_sprite( 0, X,Y );
 		move_sprite( 1, X+8,Y );
 		move_sprite( 2, X,Y+8 );
@@ -196,7 +200,30 @@ void main( void )
 	}
 }
 
-void update_level( s_gameState gamestate )
+// Loads a level
+void level_load( uint8_t number )
+{
+	g_game.levelNumber = number;
+	
+	//TODO make a generator like:
+	// 7-6th bits -> is number of type of crates-1 (0->1 crate type, 4->5 crates type)
+	// 5-0th bits -> number of switches
+	
+	// Hardcoded for now to test
+	g_game.level[0] = 1;
+	g_game.level[6] = 1;
+	g_game.level[7] = 1;
+	g_game.level[8] = 2;
+	g_game.level[15] = 2;
+	g_game.level[16] = 3;
+	g_game.level[17] = 2;
+	g_game.level[22] = 3;
+	g_game.level[23] = 3;
+	
+	level_display();
+}
+
+void draw_playfield( void )
 {
 	// Clear screen
 	const uint8_t blank[20] = {0,0,0,0,0,0,0,0,0,2,3,0,0,0,0,0,0,0,0,0};
@@ -211,5 +238,13 @@ void update_level( s_gameState gamestate )
 	set_bkg_tiles( 0,6, 20,1, tmp );
 	set_bkg_tiles( 0,10, 20,1, tmp );
 	set_bkg_tiles( 0,14, 20,1, tmp );
+}
+
+void level_display( void )
+{
+	//g_game.level[0]
+	
+	uint8_t crate[4] = {12,13,14,15};
+	set_bkg_tiles( 0,0, 2,2, crate );
 }
 
