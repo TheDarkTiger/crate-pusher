@@ -242,9 +242,35 @@ void draw_playfield( void )
 
 void level_display( void )
 {
-	//g_game.level[0]
-	
+	uint8_t x = 0;
+	uint8_t y = 0;
 	uint8_t crate[4] = {12,13,14,15};
-	set_bkg_tiles( 0,0, 2,2, crate );
+	for( uint8_t i=0; i<32; i++ )
+	{
+		if( g_game.level[i] > 0 )
+		{
+			// X coordinate
+			x = i%8;
+			if( x > 4 )
+			{
+				x += 2;
+			}
+			x *= 2;
+			
+			// Y coordinate
+			y = i/8;
+			y *= 4;
+			
+			// Correct crate tiles
+			uint8_t tmp = g_game.level[i]*4;
+			crate[0] = 8+tmp;
+			crate[1] = 9+tmp;
+			crate[2] = 10+tmp;
+			crate[3] = 11+tmp;
+			
+			// Update
+			set_bkg_tiles( x,y, 2,2, crate );
+		}
+	}
 }
 
