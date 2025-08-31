@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdbool.h>
 #include <gb/gb.h>
 
 // ;)
@@ -113,8 +114,8 @@ void main( void )
 	level_load( 1 );
 	
 	// Main loop
-	unsigned char mode = 0; //0: album, 1: page, 2: roll, 3: picture, 4: viewing
-	unsigned char modePrevious = 255; // Force update
+	unsigned char mode = 3; //0: menu, 1: options, 2: audio test, 3: game
+	
 	unsigned char joystickState = 0;
 	unsigned char joystickStatePrevious = 0;
 	while(1)
@@ -124,7 +125,7 @@ void main( void )
 		// Controls
 		joystickStatePrevious = joystickState;
 		joystickState = joypad();
-		if( mode < 4 )
+		if( mode == 3 )
 		{
 			// (P^S) -> is the state the same ?
 			// (P^S)&S -> is the touch pressed ?
@@ -178,50 +179,136 @@ void main( void )
 			
 			if( joystickPressed & J_A )
 			{
+				bool change = false;
+				// Calculat with row Kate is facing
+				uint8_t row = 4*((g_game.player.y*2)+g_game.player.side);
+				
+				// Try to grab the crate
+				if( g_game.player.holding == 0 )
+				{
+					// Look if there is a crate to take
+					// (Yes, it's dirty and not universal. Remember I'm trying to make a game in 4h)
+					if( g_game.level[row+3] != 0 )
+					{
+						g_game.player.holding = g_game.level[row+3];
+						g_game.level[row+3] = 0;
+						change = true;
+						//play_SFX( sfx_grab );
+					}else{
+						if( g_game.level[row+2] != 0 )
+						{
+							g_game.player.holding = g_game.level[row+2];
+							g_game.level[row+2] = 0;
+							change = true;
+							//play_SFX( sfx_grab );
+						}else{
+							if( g_game.level[row+1] != 0 )
+							{
+								g_game.player.holding = g_game.level[row+1];
+								g_game.level[row+1] = 0;
+								change = true;
+								//play_SFX( sfx_grab );
+							}else{
+								if( g_game.level[row] != 0 )
+								{
+									g_game.player.holding = g_game.level[row];
+									g_game.level[row] = 0;
+									change = true;
+									//play_SFX( sfx_grab );
+								}else{
+									//play_SFX( sfx_nope );
+								}
+							}
+						}
+					}
+					
+				// Try to put the crate
+				}else{
+					// Look if there is a space to put our crate to
+					// (Yes, it's dirty and not universal. Remember I'm trying to make a game in 4h)
+					if( g_game.level[row] == 0 )
+					{
+						g_game.level[row] = g_game.player.holding;
+						g_game.player.holding = 0;
+						change = true;
+						//play_SFX( sfx_put );
+					}else{
+						if( g_game.level[row+1] == 0 )
+						{
+							g_game.level[row+1] = g_game.player.holding;
+							g_game.player.holding = 0;
+							change = true;
+							//play_SFX( sfx_put );
+						}else{
+							if( g_game.level[row+2] == 0 )
+							{
+								g_game.level[row+2] = g_game.player.holding;
+								g_game.player.holding = 0;
+								change = true;
+								//play_SFX( sfx_put );
+							}else{
+								if( g_game.level[row+3] == 0 )
+								{
+									g_game.level[row+3] = g_game.player.holding;
+									g_game.player.holding = 0;
+									change = true;
+									//play_SFX( sfx_put );
+								}else{
+									//play_SFX( sfx_nope );
+								}
+							}
+						}
+					}
+				}
+				/*
 				g_game.player.holding++;
+				//play_SFX( sfx_sweep_up );
 				if( g_game.player.holding > 5 )
 				{
 					g_game.player.holding = 0;
 				}
-				
-				if( g_game.player.holding > 0 )
+				*/
+				if( change )
 				{
 					uint8_t tmp = g_game.player.holding*4;
 					set_sprite_tile( 4, 8+tmp );
 					set_sprite_tile( 5, 9+tmp );
 					set_sprite_tile( 6, 10+tmp );
 					set_sprite_tile( 7, 11+tmp );
+					
+					level_display();
 				}
-				//play_SFX( sfx_sweep_up );
 			}
+			
+			/*
 			if( joystickPressed & J_B )
 			{
 				g_game.player.holding = 0;
 				//play_SFX( sfx_sweep_down );
 			}
+			*/
 			
-		}
-		
-		// Update player
-		uint8_t X = g_game.player.x;
-		uint8_t Y = 18+(32*g_game.player.y);
-		move_sprite( 0, X,Y );
-		move_sprite( 1, X+8,Y );
-		move_sprite( 2, X,Y+8 );
-		move_sprite( 3, X+8,Y+8 );
-		
-		if( g_game.player.holding != 0 )
-		{
-			int8_t o = g_game.player.side==0?-12:12;
-			move_sprite( 4, X+o,Y-2 );
-			move_sprite( 5, X+o+8,Y-2 );
-			move_sprite( 6, X+o,Y+6 );
-			move_sprite( 7, X+o+8,Y+6 );
-		}else{
-			move_sprite( 4, 0,0 );
-			move_sprite( 5, 0,0 );
-			move_sprite( 6, 0,0 );
-			move_sprite( 7, 0,0 );
+			// Update player display
+			uint8_t X = g_game.player.x;
+			uint8_t Y = 18+(32*g_game.player.y);
+			move_sprite( 0, X,Y );
+			move_sprite( 1, X+8,Y );
+			move_sprite( 2, X,Y+8 );
+			move_sprite( 3, X+8,Y+8 );
+			
+			if( g_game.player.holding != 0 )
+			{
+				int8_t o = g_game.player.side==0?-12:12;
+				move_sprite( 4, X+o,Y-2 );
+				move_sprite( 5, X+o+8,Y-2 );
+				move_sprite( 6, X+o,Y+6 );
+				move_sprite( 7, X+o+8,Y+6 );
+			}else{
+				move_sprite( 4, 0,0 );
+				move_sprite( 5, 0,0 );
+				move_sprite( 6, 0,0 );
+				move_sprite( 7, 0,0 );
+			}
 		}
 		
 	}
@@ -237,19 +324,33 @@ void level_load( uint8_t number )
 	// 5-0th bits -> number of switches
 	
 	// Hardcoded for now to test
+	//  0 4
+	//  8 12
+	// 16 20
+	// 24 28
+	for( uint8_t i=0; i<32; i++)
+	{
+		g_game.level[i] = 0;
+	}
 	g_game.level[0] = 1;
-	g_game.level[6] = 1;
-	g_game.level[7] = 1;
+	
+	g_game.level[4] = 1;
+	g_game.level[5] = 1;
+	
 	g_game.level[8] = 2;
-	g_game.level[15] = 2;
+	
+	g_game.level[12] = 2;
+	
 	g_game.level[16] = 3;
 	g_game.level[17] = 2;
-	g_game.level[22] = 3;
-	g_game.level[23] = 3;
+	
+	g_game.level[20] = 3;
+	g_game.level[21] = 3;
 	
 	level_display();
 }
 
+// Background if you will
 void draw_playfield( void )
 {
 	// Clear screen
@@ -267,37 +368,46 @@ void draw_playfield( void )
 	set_bkg_tiles( 0,14, 20,1, tmp );
 }
 
+// Draw the correct crates where it should
 void level_display( void )
 {
 	uint8_t x = 0;
 	uint8_t y = 0;
 	uint8_t crate[4] = {12,13,14,15};
+	
 	for( uint8_t i=0; i<32; i++ )
 	{
+		// X coordinate
+		x = i%8;
+		// right side is 'backward'
+		if( x > 3 )
+		{
+			x = 13-x;
+		}
+		x *= 2;
+		
+		// Y coordinate
+		y = i/8;
+		y *= 4;
+		
+		// Correct crate tiles
 		if( g_game.level[i] > 0 )
 		{
-			// X coordinate
-			x = i%8;
-			if( x > 4 )
-			{
-				x += 2;
-			}
-			x *= 2;
-			
-			// Y coordinate
-			y = i/8;
-			y *= 4;
-			
-			// Correct crate tiles
 			uint8_t tmp = g_game.level[i]*4;
 			crate[0] = 8+tmp;
 			crate[1] = 9+tmp;
 			crate[2] = 10+tmp;
 			crate[3] = 11+tmp;
 			
-			// Update
-			set_bkg_tiles( x,y, 2,2, crate );
+		}else{
+			crate[0] = 0;
+			crate[1] = 0;
+			crate[2] = 0;
+			crate[3] = 0;
 		}
+		
+		// Update
+		set_bkg_tiles( x,y, 2,2, crate );
 	}
 }
 
