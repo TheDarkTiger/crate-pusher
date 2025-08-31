@@ -310,6 +310,9 @@ void main( void )
 						level_load( g_game.levelNumber+1 );
 						//play_music( msk_playing );
 					}
+				}else{
+					level_load( g_game.levelNumber );
+					//play_music( msk_playing );
 				}
 			}
 			//*/
@@ -371,7 +374,7 @@ void level_load( uint8_t number )
 	{
 		case 1 :
 		{
-			g_game.level[19] = 1;
+			g_game.level[18] = 1;
 			g_game.level[22] = 1;
 			
 			g_game.levelThreshold = 2;
