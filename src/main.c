@@ -178,12 +178,25 @@ void main( void )
 			
 			if( joystickPressed & J_A )
 			{
-				mode++;
+				g_game.player.holding++;
+				if( g_game.player.holding > 5 )
+				{
+					g_game.player.holding = 0;
+				}
+				
+				if( g_game.player.holding > 0 )
+				{
+					uint8_t tmp = g_game.player.holding*4;
+					set_sprite_tile( 4, 8+tmp );
+					set_sprite_tile( 5, 9+tmp );
+					set_sprite_tile( 6, 10+tmp );
+					set_sprite_tile( 7, 11+tmp );
+				}
 				//play_SFX( sfx_sweep_up );
 			}
 			if( joystickPressed & J_B )
 			{
-				mode--;
+				g_game.player.holding = 0;
 				//play_SFX( sfx_sweep_down );
 			}
 			
@@ -196,6 +209,20 @@ void main( void )
 		move_sprite( 1, X+8,Y );
 		move_sprite( 2, X,Y+8 );
 		move_sprite( 3, X+8,Y+8 );
+		
+		if( g_game.player.holding != 0 )
+		{
+			int8_t o = g_game.player.side==0?-12:12;
+			move_sprite( 4, X+o,Y-2 );
+			move_sprite( 5, X+o+8,Y-2 );
+			move_sprite( 6, X+o,Y+6 );
+			move_sprite( 7, X+o+8,Y+6 );
+		}else{
+			move_sprite( 4, 0,0 );
+			move_sprite( 5, 0,0 );
+			move_sprite( 6, 0,0 );
+			move_sprite( 7, 0,0 );
+		}
 		
 	}
 }
