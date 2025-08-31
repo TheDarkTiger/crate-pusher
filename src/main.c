@@ -53,6 +53,7 @@ typedef struct {
 	uint8_t levelNumber;
 	uint8_t level[32];
 	uint8_t levelThreshold;
+	bool levelFinished;
 	uint8_t moves;
 	s_player player;
 } s_gameState;
@@ -108,6 +109,7 @@ void main( void )
 	g_game.levelNumber = 0;
 	g_game.level[0] = 0;
 	g_game.levelThreshold = 0;
+	g_game.levelFinished = false;
 	g_game.moves = 0;
 	g_game.player.x = 80+4;
 	g_game.player.y = 0;
@@ -281,18 +283,27 @@ void main( void )
 					set_sprite_tile( 7, 11+tmp );
 					
 					level_update();
-					
 					level_display();
+					
+					level_check_status();
 				}
 			}
 			
-			/*
+			//*
 			if( joystickPressed & J_B )
 			{
-				g_game.player.holding = 0;
+				if( g_game.levelFinished )
+				{
+					if( g_game.levelNumber < 250 )
+					{
+						level_load( g_game.levelNumber+1 );
+						//play_music( msk_playing );
+					}
+				}
+				
 				//play_SFX( sfx_sweep_down );
 			}
-			*/
+			//*/
 			
 			// Update player display
 			uint8_t X = g_game.player.x;
@@ -314,6 +325,11 @@ void main( void )
 				move_sprite( 5, 0,0 );
 				move_sprite( 6, 0,0 );
 				move_sprite( 7, 0,0 );
+			}
+			
+			if( g_game.levelFinished )
+			{
+				//play_music( msk_finished );
 			}
 		}
 		
@@ -337,26 +353,117 @@ void level_load( uint8_t number )
 	//  8 12
 	// 16 20
 	// 24 28
+	g_game.levelFinished = false;
 	for( uint8_t i=0; i<32; i++)
 	{
 		g_game.level[i] = 0;
 	}
-	g_game.level[0] = 1;
-	
-	g_game.level[4] = 1;
-	g_game.level[5] = 1;
-	
-	g_game.level[8] = 2;
-	
-	g_game.level[12] = 2;
-	
-	g_game.level[16] = 3;
-	g_game.level[17] = 2;
-	
-	g_game.level[20] = 3;
-	g_game.level[21] = 3;
-	
-	g_game.levelThreshold = 3;
+	switch( number )
+	{
+		case 1 :
+		{
+			g_game.level[19] = 1;
+			g_game.level[22] = 1;
+			
+			g_game.levelThreshold = 2;
+			g_game.player.y = 2;
+			break;
+		}
+		
+		case 2 :
+		{
+			g_game.level[20] = 2;
+			g_game.level[24] = 1;
+			g_game.level[25] = 2;
+			g_game.level[28] = 1;
+			
+			g_game.levelThreshold = 2;
+			g_game.player.y = 2;
+			break;
+		}
+		
+		case 3 :
+		{
+			g_game.level[12] = 1;
+			g_game.level[20] = 1;
+			g_game.level[21] = 2;
+			g_game.level[22] = 1;
+			g_game.level[24] = 1;
+			g_game.level[25] = 2;
+			
+			g_game.levelThreshold = 2;
+			g_game.player.y = 3;
+			break;
+		}
+		
+		case 4 :
+		{
+			g_game.level[0] = 1;
+			g_game.level[1] = 2;
+			g_game.level[2] = 1;
+			g_game.level[4] = 2;
+			g_game.level[5] = 1;
+			g_game.level[6] = 2;
+			
+			g_game.level[8] = 2;
+			g_game.level[9] = 1;
+			g_game.level[10] = 2;
+			g_game.level[12] = 1;
+			g_game.level[13] = 2;
+			g_game.level[14] = 1;
+			
+			g_game.levelThreshold = 2;
+			g_game.player.y = 3;
+			break;
+		}
+		
+		case 10 :
+		{
+			g_game.level[0] = 1;
+			
+			g_game.level[4] = 1;
+			g_game.level[5] = 1;
+			
+			g_game.level[8] = 2;
+			
+			g_game.level[12] = 2;
+			
+			g_game.level[16] = 3;
+			g_game.level[17] = 2;
+			
+			g_game.level[20] = 3;
+			g_game.level[21] = 3;
+			
+			g_game.levelThreshold = 3;
+			g_game.player.y = 2;
+			break;
+		}
+		
+		case 40 :
+		{
+			g_game.level[0] = 1;
+			g_game.level[1] = 1;
+			g_game.level[2] = 1;
+			
+			g_game.level[4] = 1;
+			
+			g_game.levelThreshold = 4;
+			g_game.player.y = 0;
+			break;
+		}
+		
+		default :
+		{
+			g_game.level[0] = 5;
+			g_game.level[4] = 5;
+			
+			g_game.levelThreshold = 2;
+			g_game.player.y = 2;
+			
+			g_game.levelNumber = 255;
+			break;
+		}
+	}
 	
 	level_display();
 }
@@ -497,10 +604,13 @@ void level_update( void )
  */
 uint8_t level_check_status( void )
 {
-	bool rakeState[8] = {false, false, false, false, false, false, false, false};
+	g_game.levelFinished = true;
 	
-	for( uint8_t rake=0; rake<8; rake++ )
+	for( uint8_t i=0; i<32; i++ )
 	{
-		rakeState[rake] = false;
+		if( g_game.level[i] != 0 )
+		{
+			g_game.levelFinished = false;
+		}
 	}
 }
