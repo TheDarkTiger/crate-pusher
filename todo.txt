@@ -1,1 +1,13 @@
-do something, you dodo.
+HIGH	Correct the "holding crate when lvl restart" bug
+HIGH	Add a message or something when a level is finished
+
+MED	Add a menu
+MED	Add a status bar
+MED	Add musics
+MED	Rework level "format"
+MED	Add levels
+MED	Add level selector
+MED	Add gameplay elements (pannels, bonus?)
+
+LOW	Add basic color compability
+LOW	Add save/password?

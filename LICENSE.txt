@@ -1,0 +1,9 @@
+Code:
+I so choose to license the code (including) under "PolyForm Noncommercial License 1.0.0"
+Please, understand it as a more legal form of the "CC BY-NC-SA V4" (that is unfortunately, not adapted for the code).
+
+Assets:
+I so choose to license assets (graphics, sfx, music) under "CC BY-NC-SA V4".
+
+You can find a copy of the licenses in the folder "doc" of this repository.
+Happy hacking!
