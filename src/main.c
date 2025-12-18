@@ -169,6 +169,7 @@ void main( void )
 	
 	unsigned char joystickState = 0;
 	unsigned char joystickStatePrevious = 0;
+	unsigned char previousSide = 255;
 	while(1)
 	{
 		wait_vbl_done();
@@ -185,29 +186,11 @@ void main( void )
 			
 			if( joystickPressed & J_LEFT )
 			{
-				g_game.player.x = 80+4;
 				g_game.player.side = 0;
-				set_sprite_tile( 0, 4 );
-				set_sprite_tile( 1, 5 );
-				set_sprite_tile( 2, 6 );
-				set_sprite_tile( 3, 7 );
-				set_sprite_prop( 0, 0 );
-				set_sprite_prop( 1, 0 );
-				set_sprite_prop( 2, 0 );
-				set_sprite_prop( 3, 0 );
 			}
 			if( joystickPressed & J_RIGHT )
 			{
-				g_game.player.x = 72+4;
 				g_game.player.side = 1;
-				set_sprite_tile( 0, 5 );
-				set_sprite_tile( 1, 4 );
-				set_sprite_tile( 2, 7 );
-				set_sprite_tile( 3, 6 );
-				set_sprite_prop( 0, S_FLIPX );
-				set_sprite_prop( 1, S_FLIPX );
-				set_sprite_prop( 2, S_FLIPX );
-				set_sprite_prop( 3, S_FLIPX );
 			}
 			if( joystickPressed & J_UP )
 			{
@@ -349,6 +332,34 @@ void main( void )
 			}
 			//*/
 			
+			// Update the player sprite depending on the side its looking at
+			if( g_game.player.side != previousSide )
+			{
+				if( g_game.player.side == 0 )
+				{
+					g_game.player.x = 80+4;
+					set_sprite_tile( 0, 4 );
+					set_sprite_tile( 1, 5 );
+					set_sprite_tile( 2, 6 );
+					set_sprite_tile( 3, 7 );
+					set_sprite_prop( 0, 0 );
+					set_sprite_prop( 1, 0 );
+					set_sprite_prop( 2, 0 );
+					set_sprite_prop( 3, 0 );
+				}else{
+					g_game.player.x = 72+4;
+					set_sprite_tile( 0, 5 );
+					set_sprite_tile( 1, 4 );
+					set_sprite_tile( 2, 7 );
+					set_sprite_tile( 3, 6 );
+					set_sprite_prop( 0, S_FLIPX );
+					set_sprite_prop( 1, S_FLIPX );
+					set_sprite_prop( 2, S_FLIPX );
+					set_sprite_prop( 3, S_FLIPX );
+				}
+				previousSide = g_game.player.side;
+			}
+			
 			// Update player display
 			uint8_t X = g_game.player.x;
 			uint8_t Y = 18+(32*g_game.player.y);
@@ -402,6 +413,12 @@ void level_load( uint8_t number )
 	{
 		g_game.level[i] = 0;
 	}
+	
+	// Default player reset
+	g_game.player.y = 2;
+	g_game.player.side = 0;
+	g_game.player.holding = 0;
+	
 	switch( number )
 	{
 		case 1 :
@@ -410,7 +427,6 @@ void level_load( uint8_t number )
 			g_game.level[22] = 1;
 			
 			g_game.levelThreshold = 2;
-			g_game.player.y = 2;
 			break;
 		}
 		
@@ -422,7 +438,6 @@ void level_load( uint8_t number )
 			g_game.level[28] = 1;
 			
 			g_game.levelThreshold = 2;
-			g_game.player.y = 2;
 			break;
 		}
 		
@@ -479,7 +494,6 @@ void level_load( uint8_t number )
 			g_game.level[21] = 3;
 			
 			g_game.levelThreshold = 3;
-			g_game.player.y = 2;
 			break;
 		}
 		
@@ -493,6 +507,7 @@ void level_load( uint8_t number )
 			
 			g_game.levelThreshold = 4;
 			g_game.player.y = 0;
+			g_game.player.side = 1;
 			break;
 		}
 		
@@ -518,7 +533,6 @@ void level_load( uint8_t number )
 			g_game.level[29] = 5;
 			
 			g_game.levelThreshold = 3;
-			g_game.player.y = 2;
 			break;
 		}
 		
@@ -529,7 +543,7 @@ void level_load( uint8_t number )
 			g_game.level[4] = 5;
 			
 			g_game.levelThreshold = 2;
-			g_game.player.y = 2;
+			g_game.player.y = 0;
 			
 			g_game.levelNumber = 255;
 			break;
