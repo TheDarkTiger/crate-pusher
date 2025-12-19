@@ -1,7 +1,6 @@
-HIGH	Correct the "holding crate when lvl restart" bug
 HIGH	Add a message or something when a level is finished
+HIGH	Finish the menu
 
-MED	Add a menu
 MED	Add a status bar
 MED	Add musics
 MED	Rework level "format"
